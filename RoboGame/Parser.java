@@ -29,11 +29,62 @@ public class Parser {
         // Set the delimiter for the scanner.
         s.useDelimiter("\\s+|(?=[{}(),;])|(?<=[{}(),;])");
         // THE PARSER GOES HERE
+        
+        // PROG  ::= [ STMT ]*
+        
+        // STMT  ::= ACT ";" | LOOP
+            
+            
+        
+        // LOOP  ::= "loop" BLOCK
+        
+        //BLOCK ::= "{" STMT+ "}"
+        
+        
         // Call the parseProg method for the first grammar rule (PROG) and return the node
         return null;
     }
 
-
+    // ACT   ::= "move" | "turnL" | "turnR" | "takeFuel" | "wait"
+    public ProgramNode parseAct(Scanner s) {
+        if (s.hasNext("move")) {return parseMove(s);}
+        if (s.hasNext("turnL")) {return parseTurnL(s);}
+        if (s.hasNext("turnR")) {return parseTurnR(s);}
+        if (s.hasNext("takeFuel")){return parseTakeFuel(s);}
+        if (s.hasNext("wait")){return parseWait(s);}
+        fail("Unknown command",s);         
+        return null;
+    }
+    
+    /** move */
+    public ProgramNode parseMove(Scanner s){
+          require("move", "expecting 'move'", s);
+          return new MoveNode();
+    }
+    
+    /** turnL */
+    public ProgramNode parseTurnL(Scanner s){
+          require("turnL", "expecting 'turnL'", s);
+          return new turnLNode();
+    }
+    
+    /** turnR */
+    public ProgramNode parseTurnR(Scanner s){
+          require("turnR", "expecting 'turnR'", s);
+          return new turnRNode();
+    }
+        
+    /** takefuel */
+    public ProgramNode parseTakeFuel(Scanner s){
+          require("takeFuel", "expecting 'takeFuel'", s);
+          return new takeFuelNode();
+    }
+    
+    /** idlewait */
+    public ProgramNode parseWait(Scanner s){
+          require("wait", "expecting 'wait'", s);
+          return new idleWaitNode();
+    }
 
 
 
@@ -116,4 +167,45 @@ public class Parser {
 //  class BlockNode implements ProgramNode {.....
 //     with fields, a toString() method and an execute() method
 //
+
+class  MoveNode  implements ProgramNode{
+    public MoveNode(){}
+    public String toString(){return "move";}
+    public void execute(Robot w){
+        w.move();
+    }
+}
+
+class  turnLNode  implements ProgramNode{
+    public turnLNode(){}
+    public String toString(){return "turnL";}
+    public void execute(Robot w){
+        w.turnLeft();
+    }
+}
+
+class  turnRNode  implements ProgramNode{
+    public turnRNode(){}
+    public String toString(){return "turnR";}
+    public void execute(Robot w){
+        w.turnRight();
+    }
+}
+
+class  takeFuelNode  implements ProgramNode{
+    public takeFuelNode(){}
+    public String toString(){return "takeFuel";}
+    public void execute(Robot w){
+        w.takeFuel();
+    }
+}
+
+class  idleWaitNode  implements ProgramNode{
+    public idleWaitNode(){}
+    public String toString(){return "wait";}
+    public void execute(Robot w){
+        w.idleWait();
+    }
+}
+
 
