@@ -29,22 +29,44 @@ public class Parser {
         // Set the delimiter for the scanner.
         s.useDelimiter("\\s+|(?=[{}(),;])|(?<=[{}(),;])");
         // THE PARSER GOES HERE
-        
-        // PROG  ::= [ STMT ]*
-        
-        // STMT  ::= ACT ";" | LOOP
-            
-            
-        
-        // LOOP  ::= "loop" BLOCK
-        
-        //BLOCK ::= "{" STMT+ "}"
-        
-        
+        ProgramNode tree = parseProg(s);
         // Call the parseProg method for the first grammar rule (PROG) and return the node
+        return tree;
+    }
+    
+    
+    
+    // PROG  ::= [ STMT ]*
+    public ProgramNode parseProg(Scanner s) {
+        List<ProgramNode> progs = new ArrayList<ProgramNode>();
+        if (!s.hasNext())         {fail("No instructions", s);}
+        while (s.hasNext()) {
+            progs.add(parseSTMT(s));
+        }
+        if (progs.isEmpty()) {
+            fail("Unknown instruction", s);
+        }
+        return null;
+    }
+    
+    // STMT  ::= ACT ";" | LOOP
+    public ProgramNode parseSTMT(Scanner s) {
+        if (s.hasNext("action")) {
+            s.next(); // Consume "action" token
+            if (s.hasNext(";")) {
+                s.next(); // Consume ";" token
+                return parseAct(s); // Parse and return ActionNode
+            } else {
+                fail("Missing semicolon after action", s);
+            }
+        }
+        if (s.hasNext("loop")) {
+            return parseLoop(s); // Parse and return LoopNode
+        }
         return null;
     }
 
+    
     // ACT   ::= "move" | "turnL" | "turnR" | "takeFuel" | "wait"
     public ProgramNode parseAct(Scanner s) {
         if (s.hasNext("move")) {return parseMove(s);}
@@ -85,7 +107,22 @@ public class Parser {
           require("wait", "expecting 'wait'", s);
           return new idleWaitNode();
     }
+    
+    // LOOP  ::= "loop" BLOCK
+    public ProgramNode parseLoop(Scanner s) {
+        if (s.hasNext("loop")) {s.next();}
+        
+        return null;
+    }
 
+    //BLOCK ::= "{" STMT+ "}"
+    public ProgramNode parseBlock(Scanner s) {
+        if (s.hasNext("{")) {s.next();}
+        
+        if (s.hasNext("}")) {}
+        
+        return null;
+    }
 
 
 
