@@ -20,14 +20,90 @@ import java.util.PriorityQueue;
 
 
 public class AStar {
-
+    
     /**
      * Finds the shortest path between two stops
+     *"distance"
+
+
+    /**
+     * A Star search algorithm to find the shortest path between two stops
+     * @param start
+     * @param goal
+     * @param timeOrDistance
+     * @return
      */
     public static List<Edge> findShortestPath(Stop start, Stop goal) {
-
-
-        return null; // to make the template compile!
+        if (start == null || goal == null || start.equals(goal)) {
+            return new ArrayList<>(); // Return an empty path if start and goal are the same or if any of them is null
+        }
+    
+        // Initialize data structures
+        PriorityQueue<PathItem> queue = new PriorityQueue<>(); // priority queue
+        Set<Stop> visited = new HashSet<>(); // visited stops
+        Map<Stop, Edge> backpointers = new HashMap<>(); // backpointers
+        
+        // Initialize start node
+        PathItem startItem = new PathItem(start, null, 0, heuristic(start, goal));
+        queue.add(startItem);
+        
+        while (!queue.isEmpty()) {
+            PathItem current = queue.poll(); // path item - lowest estimated cost
+            
+            // Goal check
+            if (current.getStop().equals(goal)) {
+                // Reconstruct the path
+                List<Edge> path = new ArrayList<>();
+                Stop stop = goal;
+                
+                while (!stop.equals(start)) {
+                    Edge edge = backpointers.get(stop);
+                    path.add(edge);
+                    stop = edge.fromStop();
+                }
+                
+                Collections.reverse(path);
+                return path;
+            } 
+            
+            if(visited.contains(current.getStop())) { // check if visited stop
+                continue;
+            }
+            
+            // Mark current stop as visited
+            visited.add(current.getStop());
+            
+            // Iterate over neighbors (edges from current stop)
+             for (Edge edge : current.getStop().getEdges()) {
+                 
+                Stop neighbor = edge.toStop();
+                if (!visited.contains(neighbor)) {
+                    double newLength =  current.getLengthSoFar() + edge.distance();; //  calc cost - new path
+                    double newEstimate = newLength + heuristic(neighbor, goal); // Calc estcosts - new path
+                    // Add neighbor to the queue with updated value
+                    queue.add(new PathItem(neighbor, null, newLength,newEstimate));
+                    // Update backpointer for the neighbor
+                    backpointers.put(neighbor, edge);
+                }
+                
+                
+            } 
+        }
+        
+        return null; // No path found
     }
 
+    /** 
+     * Return the heuristic estimate of the cost to get from a stop to the goal 
+     */
+    public static double heuristic(Stop current, Stop goal) {
+        GisPoint currentPoint = current.getPoint();
+        GisPoint goalPoint = goal.getPoint();
+        return currentPoint.distance(goalPoint); // Using the distance between geographical points as the heuristic
+    }
+
+
+
+    
+    
 }

@@ -41,7 +41,7 @@ public class Graph {
 
         createAndConnectEdges();
 
-        // printGraphData();   // you could uncomment this to help in debugging your code
+        printGraphData();   // you could uncomment this to help in debugging your code
     }
 
 
@@ -97,7 +97,24 @@ public class Graph {
      * Assumes that all the previous walking edges have been removed
      */
     public void recomputeWalkingEdges(double walkingDistance) {
+        int count = 0;
+        
+        for (Stop fromS : stops) {
+            
+            for (Stop toS : stops) {
+                
+                if (fromS.distanceTo(toS) <= walkingDistance && fromS != toS) {
+                    // walking edge between two stops
+                    Edge edge = new Edge(fromS, toS, Transport.WALKING, null, fromS.distanceTo(toS));
+                    
+                    edges.add(edge); //add to set forward and backward
 
+                    count++; //number edges added                  
+                }
+            }
+        }
+
+        System.out.println("Number of walking edges added: " + count);
 
     }
 
@@ -107,9 +124,13 @@ public class Graph {
      * - from the forward neighbours of each Stop.
      */
     public void removeWalkingEdges() {
-
-
+        for (Stop stop : stops) {
+            stop.deleteEdgesOfType(Transport.WALKING); // remove all edges of type walking from the stop
+        }
+        // Remove walking edges directly from the list of edges (if necessary)
+        edges.removeIf(e -> Transport.WALKING.equals(e.transpType()));
     }
+
 
     //=============================================================================
     //  Methods to access data from the graph. 
