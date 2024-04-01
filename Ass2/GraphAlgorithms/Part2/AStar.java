@@ -74,7 +74,7 @@ public class AStar {
             visited.add(current.getStop());
             
             // Iterate over neighbors (edges from current stop)
-             for (Edge edge : current.getStop().getEdges()) {
+             for (Edge edge : current.getStop().getOutgoingEdges()) {
                  
                 Stop neighbor = edge.toStop();
                 if (!visited.contains(neighbor)) {
