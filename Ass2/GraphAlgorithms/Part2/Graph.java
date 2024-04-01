@@ -115,7 +115,8 @@ public class Graph {
                     Edge edge = new Edge(fromS, toS, Transport.WALKING, null, fromS.distanceTo(toS));
                     
                     edges.add(edge); //add to set forward and backward
-
+                    fromS.addOutEdge(edge); 
+                    toS.addInEdge(edge);  
                     count++; //number edges added                  
                 }
             }

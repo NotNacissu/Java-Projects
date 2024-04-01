@@ -20,7 +20,7 @@ import java.util.PriorityQueue;
 
 
 public class AStar {
-    
+   
     /**
      * Finds the shortest path between two stops
      *"distance"
@@ -34,17 +34,14 @@ public class AStar {
      * @return
      */
     public static List<Edge> findShortestPath(Stop start, Stop goal) {
-        if (start == null || goal == null || start.equals(goal)) {
-            return new ArrayList<>(); // Return an empty path if start and goal are the same or if any of them is null
-        }
-    
+        if (start == null || goal == null ) {return null;}
         // Initialize data structures
         PriorityQueue<PathItem> queue = new PriorityQueue<>(); // priority queue
         Set<Stop> visited = new HashSet<>(); // visited stops
         Map<Stop, Edge> backpointers = new HashMap<>(); // backpointers
         
         // Initialize start node
-        PathItem startItem = new PathItem(start, null, 0, heuristic(start, goal));
+        PathItem startItem = new PathItem(start, null, 0.0, heuristic(start, goal));
         queue.add(startItem);
         
         while (!queue.isEmpty()) {
@@ -74,17 +71,22 @@ public class AStar {
             visited.add(current.getStop());
             
             // Iterate over neighbors (edges from current stop)
-             for (Edge edge : current.getStop().getEdges()) {
+            for (Edge edge : current.getStop().getEdges()) {
                  
                 Stop neighbor = edge.toStop();
-                if (!visited.contains(neighbor)) {
-                    double newLength =  current.getLengthSoFar() + edge.distance();; //  calc cost - new path
-                    double newEstimate = newLength + heuristic(neighbor, goal); // Calc estcosts - new path
-                    // Add neighbor to the queue with updated value
-                    queue.add(new PathItem(neighbor, null, newLength,newEstimate));
-                    // Update backpointer for the neighbor
-                    backpointers.put(neighbor, edge);
+                if (visited.contains(neighbor)) {
+                    continue;
                 }
+                
+                double newLength =  current.getLengthSoFar() + edgeCost(edge);; //  calc cost - new path
+                double newEstimate = newLength + heuristic(neighbor, goal); // Calc estcosts - new path
+                // Add neighbor to the queue with updated value
+                System.out.println("nl= " +newLength);
+                System.out.println("ne= " +newEstimate);
+                PathItem neighborItem = new PathItem(neighbor, null, newLength, newEstimate);
+                queue.add(neighborItem);
+                // Update backpointer for the neighbor
+                backpointers.put(neighbor, edge);
             } 
         }
         
@@ -95,13 +97,13 @@ public class AStar {
      * Return the heuristic estimate of the cost to get from a stop to the goal 
      */
     public static double heuristic(Stop current, Stop goal) {
-        GisPoint currentPoint = current.getPoint();
-        GisPoint goalPoint = goal.getPoint();
-        return currentPoint.distance(goalPoint); // Using the distance between geographical points as the heuristic
+        return current.distanceTo(goal); // Using the distance between geographical points as the heuristic
     }
+ 
 
-
-
+    public static double edgeCost(Edge edge) {
+        return edge.distance();
+    }
     
     
 }

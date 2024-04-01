@@ -1,4 +1,4 @@
-
+import java.util.List;
 /**
  * AStar search uses a priority queue of partial paths
  * that the search is building.
@@ -9,13 +9,14 @@
 public class PathItem implements Comparable<PathItem> {
 
     private Stop stop;
-    private Edge edge;
+    private List<Edge> currentPath;
+    
     private double length;
     private double estimate;
 
-    public PathItem(Stop stop, Edge edge, double length, double estimate) {
+    public PathItem(Stop stop, List<Edge> currentPath, double length, double estimate) {
         this.stop = stop;
-        this.edge = edge;
+        this.currentPath = currentPath;
         this.length = length;
         this.estimate = estimate;
     }
@@ -36,7 +37,7 @@ public class PathItem implements Comparable<PathItem> {
         return length;
     }
 
-    public Edge getEdge() {
-        return this.edge;
+    public List<Edge> getCurrentPath() {
+        return currentPath;
     }
 }

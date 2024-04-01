@@ -1,8 +1,8 @@
 #BlueJ class context
 comment0.target=PathItem
 comment0.text=\r\n\ AStar\ search\ uses\ a\ priority\ queue\ of\ partial\ paths\r\n\ that\ the\ search\ is\ building.\r\n\ Each\ partial\ path\ needs\ several\ pieces\ of\ information,\ to\ specify\r\n\ the\ path\ to\ that\ point,\ its\ cost\ so\ far,\ and\ its\ estimated\ total\ cost\r\n
-comment1.params=stop\ edge\ length\ estimate
-comment1.target=PathItem(Stop,\ Edge,\ double,\ double)
+comment1.params=stop\ currentPath\ length\ estimate
+comment1.target=PathItem(Stop,\ java.util.List,\ double,\ double)
 comment2.params=o
 comment2.target=int\ compareTo(PathItem)
 comment3.params=
@@ -12,5 +12,5 @@ comment4.target=Stop\ getStop()
 comment5.params=
 comment5.target=double\ getLengthSoFar()
 comment6.params=
-comment6.target=Edge\ getEdge()
+comment6.target=java.util.List\ getCurrentPath()
 numComments=7

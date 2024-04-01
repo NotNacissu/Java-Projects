@@ -16,7 +16,7 @@ public class Edge {
     
     private final String transpType; 
     private final Line line; 
-
+    
     private final double distance; // distance between the two stops of the edge
 
     private final String toString;   // compute the string representation just once.

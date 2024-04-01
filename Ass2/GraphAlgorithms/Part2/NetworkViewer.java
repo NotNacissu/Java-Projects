@@ -822,7 +822,7 @@ public class NetworkViewer {
                 default -> Color.GREEN; };
 
             drawEdge(edge, 0.5, color);
-        }
+        } 
 
         drawPath();
 
@@ -832,6 +832,7 @@ public class NetworkViewer {
         //  then colour the nodes according to their component number
 
         int numSubGraphs = graph.getSubGraphCount();
+        
         Color[] subGraphColors = new Color[numSubGraphs];
         for (int i=0; i<numSubGraphs; i++){
             subGraphColors[i]= Color.hsb((180.0 + (i*360.0/numSubGraphs)) % 360, 1, 1);

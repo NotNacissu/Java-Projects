@@ -105,8 +105,9 @@ public class Graph {
                 
                 if (fromS.distanceTo(toS) <= walkingDistance && fromS != toS) {
                     // walking edge between two stops
-                    Edge edge = new Edge(fromS, toS, Transport.WALKING, null, fromS.distanceTo(toS));
+                    Edge edge = new Edge(fromS, toS, Transport.WALKING, null,  fromS.distanceTo(toS)/Transport.WALKING_SPEED_MPS);
                     
+
                     edges.add(edge); //add to set forward and backward
 
                     count++; //number edges added                  

@@ -28,10 +28,7 @@ public class Components{
         graph.resetSubGraphIds();
         //int componentNum = 0;
 
-        //for (Stop stop : graph.getStops()) {
-        //   stop.setSubGraphId(9);
-        //}
-
+        
         int componentNum = 0;
 
         List<Stop> nodeList = new ArrayList<>(); // order stops visited 
@@ -57,25 +54,26 @@ public class Components{
     }
     
     private static void forwardVisit(Stop stop, List<Stop> nodeList, Set<Stop> visited) {
-        if (!visited.contains(stop)) {
-            visited.add(stop);
+        visited.add(stop);
             
-            for (Edge e : stop.getOutEdges()) { //all stops reachable
-                Stop s = e.toStop();
-                forwardVisit(s, nodeList, visited);
-            }
-            nodeList.add(stop); // add stop - front of list
+        for (Edge e : stop.getOutEdges()) { //all stops reachable
+             Stop s = e.toStop();
+              if (!visited.contains(s)) {
+                 forwardVisit(s, nodeList, visited);
+             }
         }
+        
+        nodeList.add(stop); // add stop - front of list
     }
     
     private static void backwardVisit(Stop stop, int componentNum) {
-        if (stop.getSubGraphId() == -1) {
-            stop.setSubGraphId(componentNum); // stop assigned to component
-            
-            for (Edge e : stop.getInEdges()) { //stops reachable - stop
-                Stop s = e.fromStop();
+        stop.setSubGraphId(componentNum); // stop assigned to component
+        for (Edge e : stop.getInEdges()) { //stops reachable - stop
+            Stop s = e.fromStop();
+            if (s.getSubGraphId() == -1) {
                 backwardVisit(s, componentNum);
             }
         }
     }
+
 }    
