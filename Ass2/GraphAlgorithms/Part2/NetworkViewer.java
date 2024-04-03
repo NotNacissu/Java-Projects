@@ -153,10 +153,6 @@ public class NetworkViewer {
 
 
 
-    // Fields for the A* search
-    private Stop startLocation;
-    private Stop goalLocation;
-    private List<Edge> pathEdges = null;    // List of edges forming a path to be displayed 
 
 
 
@@ -204,7 +200,7 @@ public class NetworkViewer {
         String message = "findComponents -> " + graph.getSubGraphCount();
         displayText.appendText(message + "\n");
         
-            // Loop through each component and display its stops
+        // Loop through each component and display its stops
         for (int componentId = 0; componentId < graph.getSubGraphCount(); componentId++) {
             displayText.appendText((componentId + 1) + ": ");
             
@@ -249,7 +245,6 @@ public class NetworkViewer {
         walkingDistanceTextField.setText("0");
         
         drawMap(graph);
-        resetSearch();
     }
 
 
@@ -288,7 +283,6 @@ public class NetworkViewer {
         if (dist>0){
             graph.recomputeWalkingEdges(dist);
         } 
-        resetSearch();
         drawMap(graph);
     }
 
@@ -306,34 +300,11 @@ public class NetworkViewer {
             graph.recomputeWalkingEdges(dist);
         } 
 
-        resetSearch(); 
+        
         drawMap(graph);
     }
-
-
-    /** Reset the search parameters and the path because the graph has changed.
-     *  WILL NEED TO BE MODIFIED FOR THE COMPONENTS OR ARTICULATION PTS VERSION
-     *  (since they don't use the pathEdges or start and goal locations.)
-     */
-    public void resetSearch(){
-        pathEdges = null;
-        setStartLocation(null);
-        setGoalLocation(null);
-    }
-
-
-
-    // --------------------------------------
-    // Handling the UI: INVOKING THE PATH SEARCH
-    //  Entering the start and goal places in the text fields
-    //  Choosing the start and goal places with mouse clicks
-    // --------------------------------------
     
     
-
-
-    private Stop goalStop = null;
-    private Stop prevStartStop = null;
 
     /*
      * Handle Mouse clicks on the canvas to select start/goal locations.
@@ -357,37 +328,8 @@ public class NetworkViewer {
         GisPoint location = Projection.screen2Model(screenPoint, this);
 
         Stop closestStop = findClosestStop(location, graph);
-        if (closestStop != null) {
-            if (event.isShiftDown() ) {// if shift is pressed, just set the node to be the goal node
-                setGoalLocation(closestStop);
-            }
-            else if (startLocation==null){ // if start location is empty, set the node to be the start location
-                setStartLocation(closestStop);
-            }
-            else if (goalLocation == null ) {
-                setGoalLocation(closestStop);
-            }
-            else { 
-                setStartLocation(goalLocation);
-                setGoalLocation(closestStop);
-            }
-                // INFO: This is where your find path code is called during clicking
-            //pathEdges = AStar.findShortestPath(startLocation, goalLocation);
-            drawMap(graph);
-        }
+
         event.consume();
-    }
-
-    /** Set start location and display it */
-    public void setStartLocation(Stop stop){
-        startLocation = stop;
-        startTextField.setText(stop != null?stop.getName():"");
-    }
-
-    /** Set goal location and display it */
-    public void setGoalLocation(Stop stop){
-        goalLocation = stop;
-        goalTextField.setText(stop != null?stop.getName():"");
     }
 
 
@@ -617,17 +559,6 @@ public class NetworkViewer {
     }
 
 
-    /**
-     * Draw the list of Path Edges (eg, returned from A* search)
-     */
-    public void drawPath() {
-        if (pathEdges!=null){
-            for (Edge edge : pathEdges) {
-                drawHighlightedEdge(edge);
-            }
-        }
-    }
-
 
 
     /**
@@ -718,7 +649,6 @@ public class NetworkViewer {
             drawEdge(edge, 0.5, color);
         } 
 
-        drawPath();
 
         // Draw the stops,
         // Hilighted stops are red and double the normal size

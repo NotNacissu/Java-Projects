@@ -6,6 +6,4 @@ comment1.text=\r\n\ Finds\ the\ shortest\ path\ between\ two\ stops\r\n"distance
 comment2.params=current\ goal
 comment2.target=double\ heuristic(Stop,\ Stop)
 comment2.text=\ \r\n\ Return\ the\ heuristic\ estimate\ of\ the\ cost\ to\ get\ from\ a\ stop\ to\ the\ goal\ \r\n
-comment3.params=edge
-comment3.target=double\ edgeCost(Edge)
-numComments=4
+numComments=3

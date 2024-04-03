@@ -1,0 +1,6 @@
+#BlueJ class context
+comment0.target=SearchQueueItem
+comment0.text=\r\n\ AStar\ search\ uses\ a\ priority\ queue\ of\ partial\ paths\r\n\ that\ the\ search\ is\ building.\r\n\ Each\ partial\ path\ needs\ several\ pieces\ of\ information\r\n\ to\ specify\ the\ path\ to\ that\ point,\ its\ cost\ so\ far,\ and\r\n\ its\ estimated\ total\ cost\r\n
+comment1.params=other
+comment1.target=int\ compareTo(SearchQueueItem)
+numComments=2

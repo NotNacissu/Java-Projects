@@ -41,7 +41,7 @@ public class Graph {
 
         createAndConnectEdges();
 
-        printGraphData();   // you could uncomment this to help in debugging your code
+        //printGraphData();   // you could uncomment this to help in debugging your code
     }
 
 
@@ -125,8 +125,6 @@ public class Graph {
         for (Stop stop : stops) {
             stop.deleteEdgesOfType(Transport.WALKING); // remove all edges of type walking from the stop
         }
-        // Remove walking edges directly from the list of edges (if necessary)
-        edges.removeIf((Edge e)-> Transport.WALKING.equals(e.transpType()));
     }
 
 

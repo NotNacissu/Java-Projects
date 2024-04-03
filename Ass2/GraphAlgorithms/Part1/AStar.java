@@ -34,9 +34,7 @@ public class AStar {
      * @return
      */
     public static List<Edge> findShortestPath(Stop start, Stop goal) {
-        if (start == null || goal == null ) {
-            System.out.println("Start or goal is null. Cannot find path.");
-            return null;}
+        if (start == null || goal == null ) {return null;}
         // Initialize data structures
         PriorityQueue <PathItem> queue = new PriorityQueue<>(); // priority queue
         Set<Stop> visited = new HashSet<>(); // visited stops
@@ -62,7 +60,6 @@ public class AStar {
                 }
                 
                 Collections.reverse(path);
-                System.out.println("Shortest path found: " + path);
                 return path;
             } 
             
@@ -81,17 +78,15 @@ public class AStar {
                     continue;
                 }
                 
-                double newLength =  current.getLengthSoFar() + edgeCost(edge);; //  calc cost - new path
+                double newLength =  current.getLengthSoFar() + edge.distance();; //  calc cost - new path
                 double newEstimate = newLength + heuristic(neighbor, goal); // Calc estcosts - new path
                 // Add neighbor to the queue with updated value
-                System.out.println("Neighbor: " + neighbor + ", new length: " + newLength + ", new estimate: " + newEstimate);
                 PathItem neighborItem = new PathItem(neighbor, null, newLength, newEstimate);
                 queue.add(neighborItem);
                 // Update backpointer for the neighbor
                 backpointers.put(neighbor, edge);
             } 
         }
-        System.out.println("No path found.");
         return null; // No path found
     }
 
@@ -101,11 +96,6 @@ public class AStar {
     public static double heuristic(Stop current, Stop goal) {
         return current.distanceTo(goal); // Using the distance between geographical points as the heuristic
     }
- 
 
-    public static double edgeCost(Edge edge) {
-        return edge.distance();
-    }
-    
     
 }

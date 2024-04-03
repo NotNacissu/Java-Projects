@@ -59,7 +59,7 @@ public class NetworkViewer {
     private Slider walkingDistanceSlider;
     
     // Collection of stops that should be highlighted (for whatever reason)
-    private List<Stop> highlightNodes = new ArrayList<Stop>();
+    private Collection<Stop> articulationPoints= new HashSet<Stop>();
 
     private static final int LIMIT_WALKING_DISTANCE = 500;
 
@@ -101,7 +101,7 @@ public class NetworkViewer {
             //Set the handlers for the controls.
             reloadButton.setOnAction(this::handleReload);
             quitButton.setOnAction(this::handleQuit);
-             articulationPointsButton.setOnAction(this::handleComputeArticulationPoints); // Set handler for articulation points button
+            articulationPointsButton.setOnAction(this::handleComputeArticulationPoints); // Set handler for articulation points button
 
             walkingDistanceTextField.setOnAction(this::handleWalkingDistance);
             walkingDistanceSlider.setOnMouseReleased(this::handleWalkingDistanceSlider);
@@ -176,7 +176,7 @@ public class NetworkViewer {
             System.out.println("Loading failed; creating empty graph");
             graph = new Graph(new HashSet<Stop>(), new HashSet<Line>());
         }
-        drawMap(graph);
+        drawGraph(graph);
     }
     
     // ---------------------------------
@@ -186,14 +186,13 @@ public class NetworkViewer {
     private void handleComputeArticulationPoints(ActionEvent event) {
         graph.removeWalkingEdges();
         // Recalculate articulation points
-        Collection<Stop> articulationPoints = ArticulationPoints.findArticulationPoints(graph);
+        articulationPoints = ArticulationPoints.findArticulationPoints(graph);
         // Print articulation points for debugging
         System.out.println("Articulation Points:");
         for (Stop stop : articulationPoints) {
             System.out.println(stop);
         }
-    
-        drawMap(graph);
+        drawGraph(graph);
     }
 
 
@@ -226,8 +225,7 @@ public class NetworkViewer {
         walkingDistanceSlider.setValue(0);
         walkingDistanceTextField.setText("0");
 
-
-        drawMap(graph);
+        drawGraph(graph);
     }
 
 
@@ -266,7 +264,7 @@ public class NetworkViewer {
         if (dist>0){
             graph.recomputeWalkingEdges(dist);
         } 
-        drawMap(graph);
+        drawGraph(graph);
     }
 
     /**
@@ -282,19 +280,8 @@ public class NetworkViewer {
         if (dist>0){
             graph.recomputeWalkingEdges(dist);
         } 
-        drawMap(graph);
+        drawGraph(graph);
     }
-
-
-
-
-
-    // --------------------------------------
-    // Handling the UI: INVOKING THE PATH SEARCH
-    //  Entering the start and goal places in the text fields
-    //  Choosing the start and goal places with mouse clicks
-    // --------------------------------------
-
 
 
     /*
@@ -313,16 +300,34 @@ public class NetworkViewer {
             return;
         }
         // System.out.println("Mouse click event " + event.getEventType());
-
         // find node closed to mouse click
         Point2D screenPoint = new Point2D(event.getX(), event.getY());
         GisPoint location = Projection.screen2Model(screenPoint, this);
 
         Stop closestStop = findClosestStop(location, graph);
-        //highlightClosestStop(closestStop);
+        
+        // Clear existing highlighting by redrawing all stops without highlighting
+        clearHighlightedStop();
+        // Highlight the closest stop by changing its appearance
+        drawStop(closestStop, STOP_SIZE*2, Color.GREEN); // Example: Highlight in green   
+        // Print out the description of the closest stop in the display area
+        displayText.setText(closestStop.toString());
         
         event.consume();
     }
+    
+    private void clearHighlightedStop() {
+        // Clear existing highlighting by redrawing all stops without highlighting
+        GraphicsContext gc = mapCanvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
+        for (Edge edge : graph.getEdges()) {
+            drawEdge(edge);
+        }
+        for (Stop stop : graph.getStops()) {
+            drawStop(stop, STOP_SIZE, Color.BLUE); // Example: Draw stops without highlighting in blue
+        }
+    }
+    
 
 
 
@@ -349,14 +354,7 @@ public class NetworkViewer {
         }
         return null;
     }
-    
-    public void highlightClosestStop(Stop closestStop) {
-        if (closestStop != null) {
-            highlightNodes.clear();
-            highlightNodes.add(closestStop);
-            drawMap(graph);
-        }
-    }
+
 
 
 
@@ -370,7 +368,7 @@ public class NetworkViewer {
         double changefactor = 1 + (event.getDeltaY() / 400);
         scale *= changefactor;
         // update the graph
-        drawMap(graph);
+        drawGraph(graph);
         event.consume();
     }
 
@@ -396,7 +394,7 @@ public class NetworkViewer {
         dragStartY = event.getY();
         mapOrigin.move(-dx / (scale * ratioLatLon), (dy / scale));
 
-        drawMap(graph);
+        drawGraph(graph);
         // set drag active true to avoid clicks highlighting nodes
         dragActive = true;
         event.consume();
@@ -541,7 +539,7 @@ public class NetworkViewer {
      * text description of the path.
      */
 
-    public void drawMap(Graph graph) {
+    public void drawGraph(Graph graph) {
         GraphicsContext gc = mapCanvas.getGraphicsContext2D();
         gc.clearRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
 
@@ -556,8 +554,15 @@ public class NetworkViewer {
 
 
         // Draw the stops
-        for(Stop stop : graph.getStops()) {
-            drawStop(stop, STOP_SIZE, Color.BLUE);
+        for (Stop stop : graph.getStops()) {
+            // Check if the stop is an articulation point
+            if (articulationPoints.contains(stop)) {
+                // Draw the stop with a different color or shape to highlight it as an articulation point
+                drawStop(stop, STOP_SIZE*2, Color.RED); // Draw articulation points in red, also double the size
+            } else {
+                // Draw the stop normally (blue)
+                drawStop(stop, STOP_SIZE, Color.BLUE);
+            }
         }
     }
 

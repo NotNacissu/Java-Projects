@@ -29,6 +29,8 @@ public class Graph {
     private Collection<Line> lines;
     private Collection<Edge> edges = new HashSet<Edge>();      // edges between Stops
     
+    private Set<Edge> walkingEdgesToRemove = new HashSet<>(edges);
+    
     /**
      * Construct a new graph given a collection of stops and a collection of lines.
      * Remove any stops that are not on any lines since they cannot be accessed from anywhere.
@@ -133,12 +135,10 @@ public class Graph {
          */
     public void recomputeWalkingEdges(double walkingDistance) {
         int count = 0;
-        // Create a copy of edges to iterate over
-        Set<Edge> edgesToRemove = new HashSet<>(edges);
         
         // Remove existing walking edges
-        for (Edge edge : edgesToRemove) {
-            if (edge.transpType() == Transport.WALKING) {
+        for (Edge edge : walkingEdgesToRemove) {
+            if (edge.transpType().equals(Transport.WALKING)) {
                 // Remove walking edge from both stops
                 edge.fromStop().removeNeighbor(edge.toStop());
                 edge.toStop().removeNeighbor(edge.fromStop());
@@ -176,12 +176,21 @@ public class Graph {
     * - from the edges field (the collection of all the edges in the graph)
     * - from the forward neighbours of each Stop.
     */
-    public void removeWalkingEdges() {
-        for (Stop stop : stops) {
-            stop.getNeighbors().clear(); // Clear all neighbors
-        }
+    public void removeWalkingEdges()  {  
+        // Remove walking edges from the edges collection
+        //edges.removeIf((Edge e) -> Transport.WALKING.equals(e.transpType())); 
+        // Update neighbor information for stops
+        for (Edge edge : walkingEdgesToRemove) {
+            if (edge.transpType().equals(Transport.WALKING)) {
+                // Remove walking edge from both stops
+                edge.fromStop().removeNeighbor(edge.toStop());
+                edge.toStop().removeNeighbor(edge.fromStop());
+                // Remove the edge from the edges collection
+                edges.remove(edge);
+            }
+        } 
+        
     }
-
 
     //=============================================================================
     //  Methods to access data from the graph. 

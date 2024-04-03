@@ -42,7 +42,7 @@ public class Graph {
 
         createAndConnectEdges();
 
-        printGraphData();   // you could uncomment this to help in debugging your code
+        //printGraphData();   // you could uncomment this to help in debugging your code
     }
 
 
