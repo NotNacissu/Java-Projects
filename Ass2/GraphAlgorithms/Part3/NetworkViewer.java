@@ -57,13 +57,11 @@ public class NetworkViewer {
     private TextArea displayText;
     private TextField walkingDistanceTextField;
     private Slider walkingDistanceSlider;
-    private TextField startTextField;
-    private TextField goalTextField;
-
-    private static final int LIMIT_WALKING_DISTANCE = 500;
     
     // Collection of stops that should be highlighted (for whatever reason)
-    private Collection<Stop> highlightNodes = new ArrayList<Stop>();
+    private List<Stop> highlightNodes = new ArrayList<Stop>();
+
+    private static final int LIMIT_WALKING_DISTANCE = 500;
 
     /**
      * Create the GUI, by constructing the Scene with its hierarchy of components.
@@ -80,20 +78,11 @@ public class NetworkViewer {
             // The controls
             Button reloadButton = new Button("Reload Map");
             Button quitButton = new Button("Quit");
+            Button articulationPointsButton = new Button("Articulation Points"); // Add button for computing articulation points
 
             Label walkingLabel = new Label("Set max walking dist:");
             walkingDistanceTextField = new TextField();
             walkingDistanceSlider = new Slider(0,LIMIT_WALKING_DISTANCE,0);
-
-            
-            // Add the button for finding components to the controls grid
-            Button findComponentsButton = new Button("Components");
-            controlsGrid.add(findComponentsButton, 2, 1);
-            
-            // Set the action listener for the find components button
-            findComponentsButton.setOnAction(event -> handleFindComponents(event));
-            
-
 
             // Add the control elements to the controls Grid, giving column and row)
             controlsGrid.setAlignment(Pos.CENTER);
@@ -106,18 +95,23 @@ public class NetworkViewer {
             controlsGrid.add(walkingDistanceSlider,    2, 0);
             controlsGrid.add(walkingDistanceTextField, 3, 0);
             
+            controlsGrid.add(articulationPointsButton, 2, 1); // Add the articulation points button
+
+
             //Set the handlers for the controls.
             reloadButton.setOnAction(this::handleReload);
             quitButton.setOnAction(this::handleQuit);
+             articulationPointsButton.setOnAction(this::handleComputeArticulationPoints); // Set handler for articulation points button
 
             walkingDistanceTextField.setOnAction(this::handleWalkingDistance);
             walkingDistanceSlider.setOnMouseReleased(this::handleWalkingDistanceSlider);
+
+
 
             mapCanvas.setOnMouseClicked(this::handleMouseClick);
             mapCanvas.setOnMouseDragged(this::handleMouseDrag);
             mapCanvas.setOnMousePressed(this::handleMousePressed);
             mapCanvas.setOnScroll(this::handleMouseScroll);
-            
 
             return new Scene(new VBox(controlsGrid, mapCanvas, displayText), 800, 700);
         }
@@ -153,10 +147,7 @@ public class NetworkViewer {
 
 
 
-    // Fields for the A* search
-    private Stop startLocation;
-    private Stop goalLocation;
-    private List<Edge> pathEdges = null;    // List of edges forming a path to be displayed 
+
 
 
 
@@ -188,39 +179,26 @@ public class NetworkViewer {
         drawMap(graph);
     }
     
+    // ---------------------------------
+    //  Handling the UI: Compute articulation points
+    // ---------------------------------
     
-    //---------------------------------------
-    // Handling the UI: Components button
-    //------------------------------------------
-    
-    // Action listener method for finding components
-        private void handleFindComponents(ActionEvent event) {
-        // Call the method to find strongly connected components
-        highlightNodes.clear();
-        Components.findComponents(graph); // Assuming "graph" is your instance of the graph data structure
-        // Update graph visualization and display information about components
-        drawGraph(graph);
-        //displays message in application
-        String message = "findComponents -> " + graph.getSubGraphCount();
-        displayText.appendText(message + "\n");
-        
-            // Loop through each component and display its stops
-        for (int componentId = 0; componentId < graph.getSubGraphCount(); componentId++) {
-            displayText.appendText((componentId + 1) + ": ");
-            
-            // Get stops in the current component
-            Set<Stop> stops = graph.getStopsInSubGraph(componentId);
-    
-            // Print the stop ids for the current component
-            for (Stop stop : stops) {
-                displayText.appendText(" " + stop.getId());
-            }
-            
-            displayText.appendText("\n");
+    private void handleComputeArticulationPoints(ActionEvent event) {
+        graph.removeWalkingEdges();
+        // Recalculate articulation points
+        Collection<Stop> articulationPoints = ArticulationPoints.findArticulationPoints(graph);
+        // Print articulation points for debugging
+        System.out.println("Articulation Points:");
+        for (Stop stop : articulationPoints) {
+            System.out.println(stop);
         }
+    
+        drawMap(graph);
     }
 
 
+
+    
     // ---------------------------------
     //  Handling the UI: RELOAD and QUIT buttons
     // ---------------------------------
@@ -247,9 +225,9 @@ public class NetworkViewer {
 
         walkingDistanceSlider.setValue(0);
         walkingDistanceTextField.setText("0");
-        
+
+
         drawMap(graph);
-        resetSearch();
     }
 
 
@@ -288,7 +266,6 @@ public class NetworkViewer {
         if (dist>0){
             graph.recomputeWalkingEdges(dist);
         } 
-        resetSearch();
         drawMap(graph);
     }
 
@@ -305,21 +282,10 @@ public class NetworkViewer {
         if (dist>0){
             graph.recomputeWalkingEdges(dist);
         } 
-
-        resetSearch(); 
         drawMap(graph);
     }
 
 
-    /** Reset the search parameters and the path because the graph has changed.
-     *  WILL NEED TO BE MODIFIED FOR THE COMPONENTS OR ARTICULATION PTS VERSION
-     *  (since they don't use the pathEdges or start and goal locations.)
-     */
-    public void resetSearch(){
-        pathEdges = null;
-        setStartLocation(null);
-        setGoalLocation(null);
-    }
 
 
 
@@ -328,12 +294,8 @@ public class NetworkViewer {
     //  Entering the start and goal places in the text fields
     //  Choosing the start and goal places with mouse clicks
     // --------------------------------------
-    
-    
 
 
-    private Stop goalStop = null;
-    private Stop prevStartStop = null;
 
     /*
      * Handle Mouse clicks on the canvas to select start/goal locations.
@@ -357,38 +319,11 @@ public class NetworkViewer {
         GisPoint location = Projection.screen2Model(screenPoint, this);
 
         Stop closestStop = findClosestStop(location, graph);
-        if (closestStop != null) {
-            if (event.isShiftDown() ) {// if shift is pressed, just set the node to be the goal node
-                setGoalLocation(closestStop);
-            }
-            else if (startLocation==null){ // if start location is empty, set the node to be the start location
-                setStartLocation(closestStop);
-            }
-            else if (goalLocation == null ) {
-                setGoalLocation(closestStop);
-            }
-            else { 
-                setStartLocation(goalLocation);
-                setGoalLocation(closestStop);
-            }
-                // INFO: This is where your find path code is called during clicking
-            //pathEdges = AStar.findShortestPath(startLocation, goalLocation);
-            drawMap(graph);
-        }
+        //highlightClosestStop(closestStop);
+        
         event.consume();
     }
 
-    /** Set start location and display it */
-    public void setStartLocation(Stop stop){
-        startLocation = stop;
-        startTextField.setText(stop != null?stop.getName():"");
-    }
-
-    /** Set goal location and display it */
-    public void setGoalLocation(Stop stop){
-        goalLocation = stop;
-        goalTextField.setText(stop != null?stop.getName():"");
-    }
 
 
     /**
@@ -413,6 +348,14 @@ public class NetworkViewer {
             return closestStop;
         }
         return null;
+    }
+    
+    public void highlightClosestStop(Stop closestStop) {
+        if (closestStop != null) {
+            highlightNodes.clear();
+            highlightNodes.add(closestStop);
+            drawMap(graph);
+        }
     }
 
 
@@ -457,7 +400,7 @@ public class NetworkViewer {
         // set drag active true to avoid clicks highlighting nodes
         dragActive = true;
         event.consume();
-    } 
+    }
 
 
     // -----------------------------------------
@@ -597,6 +540,7 @@ public class NetworkViewer {
      * If there is a path, it also updates the displayText text area with a
      * text description of the path.
      */
+
     public void drawMap(Graph graph) {
         GraphicsContext gc = mapCanvas.getGraphicsContext2D();
         gc.clearRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
@@ -610,24 +554,12 @@ public class NetworkViewer {
             drawEdge(edge);
         }
 
+
         // Draw the stops
         for(Stop stop : graph.getStops()) {
             drawStop(stop, STOP_SIZE, Color.BLUE);
         }
     }
-
-
-    /**
-     * Draw the list of Path Edges (eg, returned from A* search)
-     */
-    public void drawPath() {
-        if (pathEdges!=null){
-            for (Edge edge : pathEdges) {
-                drawHighlightedEdge(edge);
-            }
-        }
-    }
-
 
 
     /**
@@ -698,49 +630,6 @@ public class NetworkViewer {
                 }
             }
         }
-    }
-    
-     public void drawGraph(Graph graph) {
-        GraphicsContext gc = mapCanvas.getGraphicsContext2D();
-        gc.clearRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
-        drawFareZones(gc);
-
-        if (graph == null) {return;}
-
-        // draw all the edges
-        for (Edge edge : graph.getEdges()){
-            Color color = switch (edge.transpType()) {
-                case Transport.BUS -> Color.ROSYBROWN;
-                case Transport.TRAIN -> Color.ORANGE;
-                case Transport.WALKING -> Color.PURPLE;
-                default -> Color.GREEN; };
-
-            drawEdge(edge, 0.5, color);
-        } 
-
-        drawPath();
-
-        // Draw the stops,
-        // Hilighted stops are red and double the normal size
-        // For the other nodes, if the subgraphs /connected components have been identified,
-        //  then colour the nodes according to their component number
-
-        int numSubGraphs = graph.getSubGraphCount();
-        
-        Color[] subGraphColors = new Color[numSubGraphs];
-        for (int i=0; i<numSubGraphs; i++){
-            subGraphColors[i]= Color.hsb((180.0 + (i*360.0/numSubGraphs)) % 360, 1, 1);
-        }
-
-        for(Stop stop : graph.getStops()) {
-            int size = STOP_SIZE;
-            Color color;
-            if (highlightNodes.contains(stop)) {
-                drawStop(stop, STOP_SIZE*2, Color.RED);
-            } else {
-                drawStop(stop, STOP_SIZE, (numSubGraphs==0? Color.BLUE : subGraphColors[stop.getSubGraphId()]));
-            }
-        } 
     }
 
 

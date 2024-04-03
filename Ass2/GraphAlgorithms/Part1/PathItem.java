@@ -9,20 +9,22 @@ import java.util.List;
 public class PathItem implements Comparable<PathItem> {
 
     private Stop stop;
-    private List<Edge> currentPath;
+    private Edge edge;
     
     private double length;
     private double estimate;
 
-    public PathItem(Stop stop, List<Edge> currentPath, double length, double estimate) {
+    public PathItem(Stop stop, Edge edge, double length, double estimate) {
         this.stop = stop;
-        this.currentPath = currentPath;
+        this.edge = edge;
         this.length = length;
         this.estimate = estimate;
     }
 
     public int compareTo(PathItem o) {
-        return Double.compare(this.estimate, o.estimate);
+        if (this.estimate < o.estimate) {return -1;} // if this is less than other
+        else if (this.estimate > o.estimate) {return 1;} // if this is greater than other
+        else {return 0;} // if this is equal to other
     }
 
     public double getEstimate() {
@@ -37,7 +39,7 @@ public class PathItem implements Comparable<PathItem> {
         return length;
     }
 
-    public List<Edge> getCurrentPath() {
-        return currentPath;
+    public Edge getEdge() {
+        return edge;
     }
 }

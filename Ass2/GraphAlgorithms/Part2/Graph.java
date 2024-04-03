@@ -213,6 +213,16 @@ public class Graph {
         numComponents = num;
         if (num==0){ resetSubGraphIds(); }
     }
+    
+    public Set<Stop> getStopsInSubGraph(int componentId) {
+        Set<Stop> stopsInComponent = new HashSet<>();
+        for (Stop stop : stops) {
+            if (stop.getSubGraphId() == componentId) {
+                stopsInComponent.add(stop);
+            }
+        }
+        return stopsInComponent;
+    }
 
 
 

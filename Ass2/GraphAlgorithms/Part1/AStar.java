@@ -34,9 +34,11 @@ public class AStar {
      * @return
      */
     public static List<Edge> findShortestPath(Stop start, Stop goal) {
-        if (start == null || goal == null ) {return null;}
+        if (start == null || goal == null ) {
+            System.out.println("Start or goal is null. Cannot find path.");
+            return null;}
         // Initialize data structures
-        PriorityQueue<PathItem> queue = new PriorityQueue<>(); // priority queue
+        PriorityQueue <PathItem> queue = new PriorityQueue<>(); // priority queue
         Set<Stop> visited = new HashSet<>(); // visited stops
         Map<Stop, Edge> backpointers = new HashMap<>(); // backpointers
         
@@ -60,6 +62,7 @@ public class AStar {
                 }
                 
                 Collections.reverse(path);
+                System.out.println("Shortest path found: " + path);
                 return path;
             } 
             
@@ -81,15 +84,14 @@ public class AStar {
                 double newLength =  current.getLengthSoFar() + edgeCost(edge);; //  calc cost - new path
                 double newEstimate = newLength + heuristic(neighbor, goal); // Calc estcosts - new path
                 // Add neighbor to the queue with updated value
-                System.out.println("nl= " +newLength);
-                System.out.println("ne= " +newEstimate);
+                System.out.println("Neighbor: " + neighbor + ", new length: " + newLength + ", new estimate: " + newEstimate);
                 PathItem neighborItem = new PathItem(neighbor, null, newLength, newEstimate);
                 queue.add(neighborItem);
                 // Update backpointer for the neighbor
                 backpointers.put(neighbor, edge);
             } 
         }
-        
+        System.out.println("No path found.");
         return null; // No path found
     }
 

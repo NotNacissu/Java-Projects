@@ -24,9 +24,7 @@ public class Components{
 
     
     public static void findComponents(Graph graph) {
-        System.out.println("calling findComponents");
         graph.resetSubGraphIds();
-        //int componentNum = 0;
 
         
         int componentNum = 0;
