@@ -106,6 +106,7 @@ public class Graph {
      */
     public void computeNeighbors() {
         for (Stop stop : stops) {
+            stop.clearNeighbors(); // Clear existing neighbors
             for (Edge edge : edges) {
                 if (edge.fromStop().equals(stop)) {
                     stop.addNeighbor(edge.toStop());
@@ -135,6 +136,7 @@ public class Graph {
          */
     public void recomputeWalkingEdges(double walkingDistance) {
         int count = 0;
+        
         
         // Remove existing walking edges
         for (Edge edge : walkingEdgesToRemove) {
@@ -180,7 +182,7 @@ public class Graph {
         // Remove walking edges from the edges collection
         //edges.removeIf((Edge e) -> Transport.WALKING.equals(e.transpType())); 
         // Update neighbor information for stops
-        for (Edge edge : walkingEdgesToRemove) {
+        /*for (Edge edge : walkingEdgesToRemove) {
             if (edge.transpType().equals(Transport.WALKING)) {
                 // Remove walking edge from both stops
                 edge.fromStop().removeNeighbor(edge.toStop());
@@ -188,8 +190,10 @@ public class Graph {
                 // Remove the edge from the edges collection
                 edges.remove(edge);
             }
-        } 
-        
+        } */
+        for (Stop stop : stops) {
+            stop.getNeighbors().clear(); // Clear all neighbors
+        }
     }
 
     //=============================================================================

@@ -16,43 +16,34 @@ import java.util.HashMap;
 //   that would break a currently connected component into two or more components
 //============================================================================
 
-
 public class ArticulationPoints {
     private static int time = 0;
+    private static Stop start;
 
-    public static Collection<Stop> findArticulationPoints(Graph graph) {
-        Collection<Stop> articulationPoints = new ArrayList<>();
-        Set<Stop> visited = new HashSet<>();
+    public static Set<Stop> findArticulationPoints(Graph graph) {
+        Set<Stop> articulationPoints = new HashSet<>();
         Map<Stop, Integer> discovery = new HashMap<>();
         Map<Stop, Integer> low = new HashMap<>();
-        
-        articulationPoints.clear();
-        visited.clear();
-        discovery.clear();
-        low.clear();
-        
-        for (Stop stop : graph.getStops()) {
-            if (!visited.contains(stop)) {
-                findArticulationPointsHelper(stop, null, discovery, low, visited, articulationPoints);
+        Set<Stop> visited = new HashSet<>();
+
+        for (Stop node : graph.getStops()) {
+            if (!visited.contains(node)) {
+                start = node;
+                findArticulationPointsHelper(node, null, discovery, low, visited, articulationPoints);
             }
         }
-        
-        
 
-        time = 0;        
         return articulationPoints;
     }
 
     private static void findArticulationPointsHelper(Stop u, Stop parent, Map<Stop, Integer> discovery,
                                                      Map<Stop, Integer> low, Set<Stop> visited,
-                                                     Collection<Stop> articulationPoints) {
+                                                     Set<Stop> articulationPoints) {
         visited.add(u);
         discovery.put(u, time);
         low.put(u, time);
         time++;
         int children = 0;
-        boolean isArticulationPoint = false;
-        
 
         for (Stop v : u.getNeighbors()) {
             if (v.equals(parent)) {
@@ -62,21 +53,19 @@ public class ArticulationPoints {
                 children++;
                 findArticulationPointsHelper(v, u, discovery, low, visited, articulationPoints);
                 low.put(u, Math.min(low.get(u), low.get(v)));
-        
+
                 // Check if u is an articulation point
-                if ((parent == null && children > 1) || (parent != null && low.get(v) >= discovery.get(u))) {
-                    isArticulationPoint = true;
+                if ((u.equals(start) && children > 1) || (!u.equals(start) && low.get(v) >= discovery.get(u))) {
+                    articulationPoints.add(u);
                 }
             } else {
-                low.put(u, Math.min(low.get(u), low.get(v)));
+                low.put(u, Math.min(low.get(u), discovery.get(v)));
             }
-        }
-        if (isArticulationPoint) {
-            System.out.println("Adding " + u);
-            articulationPoints.add(u);
         }
     }
 }
+
+
 
 
 

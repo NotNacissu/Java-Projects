@@ -1,7 +1,7 @@
 #BlueJ class context
 comment0.target=ArticulationPoints
 comment1.params=graph
-comment1.target=java.util.Collection\ findArticulationPoints(Graph)
+comment1.target=java.util.Set\ findArticulationPoints(Graph)
 comment2.params=u\ parent\ discovery\ low\ visited\ articulationPoints
-comment2.target=void\ findArticulationPointsHelper(Stop,\ Stop,\ java.util.Map,\ java.util.Map,\ java.util.Set,\ java.util.Collection)
+comment2.target=void\ findArticulationPointsHelper(Stop,\ Stop,\ java.util.Map,\ java.util.Map,\ java.util.Set,\ java.util.Set)
 numComments=3
