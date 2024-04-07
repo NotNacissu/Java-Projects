@@ -147,7 +147,7 @@ public class NetworkViewer {
 
 
 
-
+    private List<Edge> pathEdges = null;    // List of edges forming a path to be displayed 
 
 
 
@@ -184,13 +184,12 @@ public class NetworkViewer {
     // ---------------------------------
     
     private void handleComputeArticulationPoints(ActionEvent event) {
-       
+        graph.removeWalkingEdges();
         // Recalculate articulation points
         articulationPoints = ArticulationPoints.findArticulationPoints(graph);
-        // Print articulation points for debugging
         System.out.println("Articulation Points:");
-        for (Stop stop : articulationPoints) {
-            System.out.println(stop);
+        for (Stop articulationPoint : articulationPoints) {
+            System.out.println(articulationPoint.getId() + ": " + articulationPoint.getName() + " at " + articulationPoint.getPoint());
         }
         drawGraph(graph);
     }
@@ -224,6 +223,8 @@ public class NetworkViewer {
 
         walkingDistanceSlider.setValue(0);
         walkingDistanceTextField.setText("0");
+        
+        resetSearch();
 
         drawGraph(graph);
     }
@@ -264,6 +265,7 @@ public class NetworkViewer {
         if (dist>0){
             graph.recomputeWalkingEdges(dist);
         } 
+        resetSearch();
         drawGraph(graph);
     }
 
@@ -280,7 +282,16 @@ public class NetworkViewer {
         if (dist>0){
             graph.recomputeWalkingEdges(dist);
         } 
+        resetSearch();
         drawGraph(graph);
+    }
+    
+        /** Reset the search parameters and the path because the graph has changed.
+     *  WILL NEED TO BE MODIFIED FOR THE COMPONENTS OR ARTICULATION PTS VERSION
+     *  (since they don't use the pathEdges or start and goal locations.)
+     */
+    public void resetSearch(){
+        pathEdges = null;
     }
 
 
@@ -307,27 +318,14 @@ public class NetworkViewer {
         Stop closestStop = findClosestStop(location, graph);
         
         // Clear existing highlighting by redrawing all stops without highlighting
-        clearHighlightedStop();
+        drawGraph(graph);
         // Highlight the closest stop by changing its appearance
         drawStop(closestStop, STOP_SIZE*2, Color.GREEN); // Example: Highlight in green   
         // Print out the description of the closest stop in the display area
         displayText.setText(closestStop.toString());
         
         event.consume();
-    }
-    
-    private void clearHighlightedStop() {
-        // Clear existing highlighting by redrawing all stops without highlighting
-        GraphicsContext gc = mapCanvas.getGraphicsContext2D();
-        gc.clearRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
-        for (Edge edge : graph.getEdges()) {
-            drawEdge(edge);
-        }
-        for (Stop stop : graph.getStops()) {
-            drawStop(stop, STOP_SIZE, Color.BLUE); // Example: Draw stops without highlighting in blue
-        }
-    }
-    
+    }    
 
 
 

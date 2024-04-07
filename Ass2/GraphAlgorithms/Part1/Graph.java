@@ -107,6 +107,7 @@ public class Graph {
                     
                     edges.add(edge); //add to set forward and backward
                     fromS.addEdge(edge);
+                    toS.addEdge(edge);
                     count++; //number edges added                  
                 }
             }
@@ -122,8 +123,12 @@ public class Graph {
      * - from the forward neighbours of each Stop.
      */
     public void removeWalkingEdges() {
+        // Remove walking edges from the collection of all edges
+        edges.removeIf(edge -> Transport.WALKING.equals(edge.transpType()));
+    
+        // Remove walking edges from the forward neighbors of each Stop
         for (Stop stop : stops) {
-            stop.deleteEdgesOfType(Transport.WALKING); // remove all edges of type walking from the stop
+            stop.deleteEdgesOfType(Transport.WALKING);
         }
     }
 

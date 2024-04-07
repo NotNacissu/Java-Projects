@@ -17,8 +17,6 @@ public class Stop implements Comparable<Stop> {
     private Collection<Stop> neighbors = new HashSet<>(); 
     // Data structure for holding a link to the lines that stop is part of   
     private Collection<Line> lines = new HashSet<>(); 
-    // Depth for articulation points
-    private int depth;
 
     /**
      * Constructor for a stop
@@ -32,7 +30,6 @@ public class Stop implements Comparable<Stop> {
         this.loc = new GisPoint(lon, lat);
         this.name = name;
         this.id = id;
-        this.depth = -1; // Initialize depth to -1
     }
     
 
@@ -153,15 +150,6 @@ public class Stop implements Comparable<Stop> {
     public void clearNeighbors() {
         neighbors.clear();
     }
-    
-    public int getDepth() {
-        return depth;
-    }
-    
-    public void setDepth(int depth) {
-        this.depth = depth;
-    }
-    
 
     
     

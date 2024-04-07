@@ -29,7 +29,6 @@ public class Graph {
     private Collection<Line> lines;
     private Collection<Edge> edges = new HashSet<Edge>();      // edges between Stops
     
-    private Set<Edge> walkingEdgesToRemove = new HashSet<>(edges);
     
     /**
      * Construct a new graph given a collection of stops and a collection of lines.
@@ -74,29 +73,36 @@ public class Graph {
      * - Construct the forward neighbour edges of each Stop.
      */
     private void createAndConnectEdges() {
-        for (Line line : lines) {
-            // Step through the adjacent pairs of stops in the line
-            String transpType = line.getType();
-            List<Stop> stops = line.getStops(); // Get the stops on the line
-            for (int i = 0; i < stops.size() - 1; i++) {
-                Stop from = stops.get(i);
-                Stop to = stops.get(i + 1);
-                double distance = from.distanceTo(to);
-                // Constructing edge between adjacent stops
-                Edge edge = new Edge(from, to, transpType, line, distance);
-                // Add the edge to the graph
-                edges.add(edge);
-            }
+    // Iterate over each line
+    for (Line line : lines) {
+        // Retrieve the type of transportation for the line
+        String transpType = line.getType();
+        
+        // Retrieve the list of stops on the line
+        List<Stop> stops = line.getStops();
+        
+        // Iterate over adjacent pairs of stops in the line
+        for (int i = 0; i < stops.size() - 1; i++) {
+            Stop from = stops.get(i);
+            Stop to = stops.get(i + 1);
+            
+            // Calculate the distance between the stops
+            double distance = from.distanceTo(to);
+            
+            // Construct an edge between the adjacent stops
+            Edge edge = new Edge(from, to, transpType, line, distance);
+            
+            // Add the edge to the graph
+            edges.add(edge);
+            
+            // Construct forward neighbor edges of each stop
+            from.addNeighbor(to);
+            to.addNeighbor(from);
         }
     }
+}
 
-    
-    /** 
-     * Construct the undirected graph of neighbours for each Stop:
-     * For each Stop, construct a set of the stops that are its neighbours
-     * from the forward and backward neighbour edges.
-     * It may assume that there are no walking edges at this point.
-     */
+
     
     /** 
      * Construct the undirected graph of neighbours for each Stop:
@@ -137,18 +143,6 @@ public class Graph {
     public void recomputeWalkingEdges(double walkingDistance) {
         int count = 0;
         
-        
-        // Remove existing walking edges
-        for (Edge edge : walkingEdgesToRemove) {
-            if (edge.transpType().equals(Transport.WALKING)) {
-                // Remove walking edge from both stops
-                edge.fromStop().removeNeighbor(edge.toStop());
-                edge.toStop().removeNeighbor(edge.fromStop());
-                // Remove the edge from the edges collection
-                edges.remove(edge);
-            }
-        } 
-    
         // Recreate walking edges based on walking distance
         for (Stop fromS : stops) {
             for (Stop toS : stops) {
@@ -162,7 +156,6 @@ public class Graph {
                 }
             }
         }
-
 
     
         System.out.println("Number of walking edges added: " + count);
@@ -179,22 +172,25 @@ public class Graph {
     * - from the forward neighbours of each Stop.
     */
     public void removeWalkingEdges()  {  
-        // Remove walking edges from the edges collection
-        //edges.removeIf((Edge e) -> Transport.WALKING.equals(e.transpType())); 
-        // Update neighbor information for stops
-        /*for (Edge edge : walkingEdgesToRemove) {
-            if (edge.transpType().equals(Transport.WALKING)) {
-                // Remove walking edge from both stops
-                edge.fromStop().removeNeighbor(edge.toStop());
-                edge.toStop().removeNeighbor(edge.fromStop());
-                // Remove the edge from the edges collection
-                edges.remove(edge);
+    // Remove walking edges from the edges collection
+    edges.removeIf(edge -> edge.transpType().equals(Transport.WALKING));
+    
+    // Remove walking edges from the forward neighbors of each Stop
+    for (Stop stop : stops) {
+        List<Stop> neighborsToRemove = new ArrayList<>();
+        for (Stop neighbor : stop.getNeighbors()) {
+            for (Edge edge : edges) {
+                if ((edge.fromStop().equals(stop) && edge.toStop().equals(neighbor)) ||
+                    (edge.fromStop().equals(neighbor) && edge.toStop().equals(stop))) {
+                    neighborsToRemove.add(neighbor);
+                    break;
+                }
             }
-        } */
-        for (Stop stop : stops) {
-            stop.getNeighbors().clear(); // Clear all neighbors
         }
+        stop.getNeighbors().removeAll(neighborsToRemove);
     }
+}
+
 
     //=============================================================================
     //  Methods to access data from the graph. 
