@@ -138,9 +138,9 @@ public class Stop implements Comparable<Stop> {
     //  edges is a collection of the (directed) edges out of the stop, 
     //--------------------------------------------
     
-    /** Get the collection of neigbor*/
+    /** Get the collection of neigbors*/
     public Map<Stop, Boolean> getNeighbors() {
-        return new HashMap<>(neighbors);
+        return neighbors;
     }
          
     /** add a new neighbor */

@@ -113,7 +113,7 @@ public class Graph {
      * It may assume that there are no walking edges at this point.
      */
     public void computeNeighbors() {
-        for (Stop stop : stops) {
+        for (Stop stop : getStops()) {
             stop.clearNeighbors(); // Clear existing neighbors
             for (Edge edge : edges) {
                 if (!edge.transpType().equals(Transport.WALKING)) {
@@ -145,11 +145,12 @@ public class Graph {
          */
     public void recomputeWalkingEdges(double walkingDistance) {
         removeWalkingEdges();
+        computeNeighbors();
         int count = 0;
         
         // Recreate walking edges based on walking distance
-        for (Stop fromS : stops) {
-            for (Stop toS : stops) {
+        for (Stop fromS : getStops()) {
+            for (Stop toS : getStops()) {
                 if (fromS != toS && fromS.distanceTo(toS) <= walkingDistance) {
                     Edge edge = new Edge(fromS, toS, Transport.WALKING, null, fromS.distanceTo(toS));
                     // Add neighbors bidirectionally between 'fromS' and 'toS'
@@ -178,13 +179,9 @@ public class Graph {
         // Remove walking edges from the edges collection
         edges.removeIf(edge -> edge.transpType().equals(Transport.WALKING));
         // Remove walking edges from the neighbor stops of each Stop
-        for (Stop stop : stops) { //for all edges should be added here!!!
-            for (Edge edge : edges) {
-                if (stop.getNeighbors().values().contains(true)) { // Check if there are walking neighbors
-                    stop.removeWalkingEdges();
-                    count++;
-                }
-            }
+        for (Stop stop : getStops()) {
+            stop.removeWalkingEdges();
+            count++;
         }
         System.out.print("Edges Removed: " + count + "\n");
     }
