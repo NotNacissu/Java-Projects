@@ -30,82 +30,85 @@ public class AStar {
      * A Star search algorithm to find the shortest path between two stops
      * @param start
      * @param goal
-     * @param timeOrDistance
      * @return
      */
     public static List<Edge> findShortestPath(Stop start, Stop goal) {
-        if (start == null || goal == null ) {
-            System.out.println("Start or goal is null. Cannot find path.");
-            return null;}
-        // Initialize data structures
-        PriorityQueue <PathItem> queue = new PriorityQueue<>(); // priority queue
-        Set<Stop> visited = new HashSet<>(); // visited stops
-        Map<Stop, Edge> backpointers = new HashMap<>(); // backpointers
-        
-        // Initialize start node
-        PathItem startItem = new PathItem(start, null, 0.0, heuristic(start, goal));
-        queue.add(startItem);
-        
-        while (!queue.isEmpty()) {
-            PathItem current = queue.poll(); // path item - lowest estimated cost
-            
-            // Goal check
-            if (current.getStop().equals(goal)) {
-                // Reconstruct the path
-                List<Edge> path = new ArrayList<>();
-                Stop stop = goal;
-                
-                while (!stop.equals(start)) {
-                    Edge edge = backpointers.get(stop);
-                    path.add(edge);
-                    stop = edge.fromStop();
-                }
-                
-                Collections.reverse(path);
-                System.out.println("Shortest path found: " + path);
-                return path;
-            } 
-            
-            if(visited.contains(current.getStop())) { // check if visited stop
-                continue;
-            }
-            
-            // Mark current stop as visited
-            visited.add(current.getStop());
-            
-            // Iterate over neighbors (edges from current stop)
-            for (Edge edge : current.getStop().getEdges()) {
-                 
-                Stop neighbor = edge.toStop();
-                if (visited.contains(neighbor)) {
-                    continue;
-                }
-                
-                double newLength =  current.getLengthSoFar() + edgeCost(edge);; //  calc cost - new path
-                double newEstimate = newLength + heuristic(neighbor, goal); // Calc estcosts - new path
-                // Add neighbor to the queue with updated value
-                System.out.println("Neighbor: " + neighbor + ", new length: " + newLength + ", new estimate: " + newEstimate);
-                PathItem neighborItem = new PathItem(neighbor, null, newLength, newEstimate);
-                queue.add(neighborItem);
-                // Update backpointer for the neighbor
-                backpointers.put(neighbor, edge);
-            } 
+        if (start == null || goal == null) {
+            return null;
         }
-        System.out.println("No path found.");
-        return null; // No path found
+        
+        // Initialize data structures
+        PriorityQueue<PathItem> fringe = new PriorityQueue<>(); // Priority queue
+        Map<Stop, Edge> backpointers = new HashMap<>(); // Backpointers
+        Set<Stop> visited = new HashSet<>(); // Visited stops
+        
+        // Put start node onto the fringe
+        fringe.add(new PathItem(start, null, 0.0, heuristic(start, goal)));
+        
+        // Main A* loop
+        while (!fringe.isEmpty()) {
+            PathItem current = fringe.poll();
+            Stop node = current.getStop();
+            Edge edge = current.getEdge();
+            double lengthToNode = current.getLengthSoFar();
+            
+            // Check if node is not visited
+            if (!visited.contains(node)) {
+                visited.add(node);
+                backpointers.put(node, edge);
+                
+                // Check if the goal is reached
+                if (node.equals(goal)) {
+                    return reconstructPath(start, goal, backpointers);
+                }
+                
+                // Iterate over neighbors
+                for (Edge neighEdge : node.getEdges()) {
+                    Stop neighbor = neighEdge.toStop();
+                    
+                    // Check if neighbor is not visited
+                    if (!visited.contains(neighbor)) {
+                        double lengthToNeighbor = lengthToNode + edgeCost(neighEdge);
+                        double estimateTotalPath = lengthToNeighbor + heuristic(neighbor, goal);
+                        fringe.add(new PathItem(neighbor, neighEdge, lengthToNeighbor, estimateTotalPath));
+                    }
+                }
+            }
+        }
+        
+        // No path found
+        return null;
     }
 
     /** 
-     * Return the heuristic estimate of the cost to get from a stop to the goal 
+     * Reconstructs the shortest path from start to goal using backpointers.
      */
-    public static double heuristic(Stop current, Stop goal) {
-        return current.distanceTo(goal); // Using the distance between geographical points as the heuristic
+    private static List<Edge> reconstructPath(Stop start, Stop goal, Map<Stop, Edge> backpointers) {
+        List<Edge> path = new ArrayList<>();
+        Stop current = goal;
+        
+        while (!current.equals(start)) {
+            Edge edge = backpointers.get(current);
+            path.add(edge);
+            current = edge.fromStop();
+        }
+        
+        Collections.reverse(path);
+        return path;
     }
- 
 
-    public static double edgeCost(Edge edge) {
-        return edge.distance();
+    /** 
+     * Returns the heuristic estimate of the cost to get from a stop to the goal.
+     */
+    private static double heuristic(Stop current, Stop goal) {
+        return current.distanceTo(goal) / Transport.TRAIN_SPEED_MPS; // Using the distance between geographical points as the heuristic
     }
     
+    /** Return the cost of traversing an edge in the graph */
+    public static double edgeCost(Edge edge){
+        return edge.time();
+    }
+    
+
     
 }

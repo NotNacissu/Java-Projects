@@ -41,7 +41,7 @@ public class Graph {
 
         createAndConnectEdges();
 
-        printGraphData();   // you could uncomment this to help in debugging your code
+        //printGraphData();   // you could uncomment this to help in debugging your code
     }
 
 
@@ -72,13 +72,20 @@ public class Graph {
      */
     private void createAndConnectEdges() {
         for (Line line : lines) {
+            List<Stop> stops = line.getStops();    
+            List<Integer> times = line.getTimes();
             // step through the adjacent pairs of stops in the line
             String transpType =  line.getType();
             for (int i = 0; i < line.getStops().size() - 1; i++) {
                 Stop from = line.getStops().get(i);
                 Stop to   = line.getStops().get(i+1);
+                int time = -1; //time each stop
+                if (i < stops.size()-1) { // create toStop - +time until last index
+                    to = stops.get(i+1);
+                    time = times.get(i+1) - times.get(i);
+                }
                 double distance = from.distanceTo(to);
-                Edge edge = new Edge(from, to, transpType, line, distance);
+                Edge edge = new Edge(from, to, transpType, line, distance,time);
                 from.addEdge(edge);
                 edges.add(edge);
             }
@@ -103,10 +110,11 @@ public class Graph {
             for (Stop toS : stops) {
                 if (fromS.distanceTo(toS) <= walkingDistance && fromS != toS) {
                     // walking edge between two stops
-                    Edge edge = new Edge( fromS, toS, Transport.WALKING, null, fromS.distanceTo(toS));
+                    Edge edge = new Edge( fromS, toS, Transport.WALKING, null, fromS.distanceTo(toS),fromS.distanceTo(toS)/Transport.WALKING_SPEED_MPS);
                     
                     edges.add(edge); //add to set forward and backward
                     fromS.addEdge(edge);
+                    toS.addEdge(edge);
                     count++; //number edges added                  
                 }
             }
@@ -122,11 +130,13 @@ public class Graph {
      * - from the forward neighbours of each Stop.
      */
     public void removeWalkingEdges() {
+        // Remove walking edges from the collection of all edges
+        edges.removeIf(edge -> Transport.WALKING.equals(edge.transpType()));
+    
+        // Remove walking edges from the forward neighbors of each Stop
         for (Stop stop : stops) {
-            stop.deleteEdgesOfType(Transport.WALKING); // remove all edges of type walking from the stop
+            stop.deleteEdgesOfType(Transport.WALKING);
         }
-        // Remove walking edges directly from the list of edges (if necessary)
-        edges.removeIf((Edge e)-> Transport.WALKING.equals(e.transpType()));
     }
 
 

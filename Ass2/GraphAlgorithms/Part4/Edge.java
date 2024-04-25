@@ -17,15 +17,17 @@ public class Edge {
     private final String transpType; 
     private final Line line; 
     
+    private final double time; // in seconds between the two stops of the edge
     private final double distance; // distance between the two stops of the edge
 
     private final String toString;   // compute the string representation just once.
     
-    public Edge(Stop fromStop, Stop toStop, String transpType, Line line, double distance){
+    public Edge(Stop fromStop, Stop toStop, String transpType, Line line, double distance, double time){
         this.fromStop = fromStop;
         this.toStop = toStop;
         this.transpType = transpType;
         this.line = line;
+        this.time = time;
         this.distance = distance;
         this.toString = "FROM " +
             fromStop.getName() + "(" + fromStop.getId()+")  TO "+
@@ -38,6 +40,7 @@ public class Edge {
 
     public Stop fromStop() {return fromStop;}
     public Stop toStop() {return toStop;}
+    public double time() {return time;}
     public String transpType() {return transpType;}
     public Line line() {return line;}
     public double distance() {return distance;}
