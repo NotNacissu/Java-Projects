@@ -15,7 +15,7 @@ public class Stop implements Comparable<Stop> {
     private GisPoint loc;
     private String name;
     private String id;
-    // Data structure for holding the (directed) edges out of the stop
+    // Data structure for holding the neighbors of a stop. if boolean is true, its a walking edge.
     private Map<Stop, Boolean> neighbors = new HashMap<>();; 
     // Data structure for holding a link to the lines that stop is part of   
     private Collection<Line> lines = new HashSet<>(); 
@@ -147,31 +147,26 @@ public class Stop implements Comparable<Stop> {
     public void addNeighbor(Stop neighbor, boolean isWalkingEdge) {
         neighbors.put(neighbor, isWalkingEdge);
     }
-    
+    /** remove a neighbor */
     public void removeNeighbor(Stop neighbor) {
         neighbors.remove(neighbor);
     }
-    
+    /** removes all walking edges for a neighbor. */
     public void removeWalkingEdges() {
         neighbors.entrySet().removeIf(entry -> entry.getValue() == true);
     }
-    
+    /** clears neighbor collection */
     public void clearNeighbors() {
         neighbors.clear();
     }
-    
+    /** gets depth of node */
     public int getDepth() {
         return depth;
     }
-
+    /** sets depth of node */
     public void setDepth(int depth) {
         this.depth = depth;
     }
-
-    
-    
-    
-
 
 
 }

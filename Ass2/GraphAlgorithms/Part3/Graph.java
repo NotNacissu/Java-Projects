@@ -90,16 +90,17 @@ public class Graph {
                 double distance = from.distanceTo(to);
                 
 
-                if (!transpType.equals(Transport.WALKING)) {
-                    // Construct an edge between the adjacent stops
-                    Edge edge = new Edge(from, to, transpType, line, distance);
-                    // Add the edge to the graph
-                    edges.add(edge);
-                } else {
-                    // Construct forward neighbor edges of each stop
-                    from.addNeighbor(to, false);
-                    to.addNeighbor(from, false);
-                }
+
+                // Construct an edge between the adjacent stops
+                Edge edge = new Edge(from, to, transpType, line, distance);
+                
+                // Add the edge to the graph
+                edges.add(edge);
+                
+                // Construct forward neighbor edges of each stop
+                from.addNeighbor(to, false); // value false as its not walking edge.
+                to.addNeighbor(from, false);
+
             }
         }
     }
@@ -116,13 +117,11 @@ public class Graph {
         for (Stop stop : getStops()) {
             stop.clearNeighbors(); // Clear existing neighbors
             for (Edge edge : edges) {
-                if (!edge.transpType().equals(Transport.WALKING)) {
-                    if (edge.fromStop().equals(stop)) {
-                        stop.addNeighbor(edge.toStop(), false);
-                    }
-                    if (edge.toStop().equals(stop)) {
-                        stop.addNeighbor(edge.fromStop(), false);
-                    }
+                if (edge.fromStop().equals(stop)) {
+                     stop.addNeighbor(edge.toStop(), false); //false as its not a walking edge
+                }
+                if (edge.toStop().equals(stop)) {
+                    stop.addNeighbor(edge.fromStop(), false);
                 }
             }
         }
@@ -146,7 +145,7 @@ public class Graph {
     public void recomputeWalkingEdges(double walkingDistance) {
         removeWalkingEdges();
         computeNeighbors();
-        int count = 0;
+        int count = 0; //counter for number of walking edges added.
         
         // Recreate walking edges based on walking distance
         for (Stop fromS : getStops()) {
@@ -154,8 +153,8 @@ public class Graph {
                 if (fromS != toS && fromS.distanceTo(toS) <= walkingDistance) {
                     Edge edge = new Edge(fromS, toS, Transport.WALKING, null, fromS.distanceTo(toS));
                     // Add neighbors bidirectionally between 'fromS' and 'toS'
-                    fromS.addNeighbor(toS, true);
-                    //toS.addNeighbor(fromS, true);
+                    fromS.addNeighbor(toS, true); //true as its a walking edge.
+                    toS.addNeighbor(fromS, true);
                     count++; // Increment the count of edges added
                 }
             }
@@ -175,15 +174,12 @@ public class Graph {
     * - from the forward neighbours of each Stop.
     */
     public void removeWalkingEdges()  {  
-        int count = 0;
         // Remove walking edges from the edges collection
         edges.removeIf(edge -> edge.transpType().equals(Transport.WALKING));
         // Remove walking edges from the neighbor stops of each Stop
-        for (Stop stop : getStops()) {
+        for (Stop stop : getStops()) { //iterates through all stops to delete all walking edges.
             stop.removeWalkingEdges();
-            count++;
         }
-        System.out.print("Edges Removed: " + count + "\n");
     }
 
 
