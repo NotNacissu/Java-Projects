@@ -184,8 +184,7 @@ public class NetworkViewer {
     // ---------------------------------
     
     private void handleComputeArticulationPoints(ActionEvent event) {
-        graph.removeWalkingEdges();
-        // Recalculate articulation points
+        //graph.removeWalkingEdges();
         articulationPoints = ArticulationPoints.findArticulationPoints(graph);
         System.out.println("Articulation Points:");
         for (Stop articulationPoint : articulationPoints) {

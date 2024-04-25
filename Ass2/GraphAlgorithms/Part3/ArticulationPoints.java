@@ -19,17 +19,20 @@ public class ArticulationPoints {
     public static Set<Stop> findArticulationPoints(Graph graph) {
         Set<Stop> articulationPoints = new HashSet<>();
 
+        // Initialize depths of all nodes to -1
         for (Stop node : graph.getStops()) {
             node.setDepth(-1);
         }
 
+        // Iterate over each node in the graph
         for (Stop node : graph.getStops()) {
             if (node.getDepth() == -1) {
                 Set<Stop> aPoints = new HashSet<>();
                 int numSubtrees = 0;
                 node.setDepth(0); // visit start
-                for (Stop neighbour : node.getNeighbors()) {
-                    if (neighbour.getDepth() == -1) {
+                // Explore neighbors of the current node
+                for (Stop neighbour : node.getNeighbors().keySet()) {
+                    if (neighbour.getDepth() == -1) { // not visited yet
                         recArtPts(neighbour, 1, node, aPoints);
                         numSubtrees++;
                     }
@@ -44,28 +47,26 @@ public class ArticulationPoints {
     }
 
     private static int recArtPts(Stop node, int depth, Stop fromNode, Set<Stop> articulationPoints) {
-        node.setDepth(depth); // Visit node
-        int reachBack = depth; // How far up this node can reach
-        
-        for (Stop neighbour : node.getNeighbors()) {
+        node.setDepth(depth); // visit node
+        int reachBack = depth; // how far up this node can reach
+
+        // Explore neighbors of the current node
+        for (Stop neighbour : node.getNeighbors().keySet()) {
             if (neighbour.equals(fromNode)) {
                 continue;
-            } else if (neighbour.getDepth() != -1) {
-                // Already visited
+            } else if (neighbour.getDepth() != -1) { // already visited
                 reachBack = Math.min(neighbour.getDepth(), reachBack);
             } else {
                 int childReach = recArtPts(neighbour, depth + 1, node, articulationPoints);
                 if (childReach >= depth) {
-                    // Subtree doesn't reach past this node
                     articulationPoints.add(node);
                 }
                 reachBack = Math.min(childReach, reachBack);
             }
         }
-        
+
         return reachBack;
     }
-
 }
 
     

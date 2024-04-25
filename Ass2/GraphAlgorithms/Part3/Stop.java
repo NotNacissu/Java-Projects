@@ -2,6 +2,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Structure for holding stop information
@@ -14,7 +16,7 @@ public class Stop implements Comparable<Stop> {
     private String name;
     private String id;
     // Data structure for holding the (directed) edges out of the stop
-    private Collection<Stop> neighbors = new HashSet<>(); 
+    private Map<Stop, Boolean> neighbors = new HashMap<>();; 
     // Data structure for holding a link to the lines that stop is part of   
     private Collection<Line> lines = new HashSet<>(); 
     
@@ -137,17 +139,21 @@ public class Stop implements Comparable<Stop> {
     //--------------------------------------------
     
     /** Get the collection of neigbor*/
-    public Collection<Stop> getNeighbors() {
-        return new HashSet<>(neighbors);
+    public Map<Stop, Boolean> getNeighbors() {
+        return new HashMap<>(neighbors);
     }
          
     /** add a new neighbor */
-    public void addNeighbor(Stop neighbor) {
-        neighbors.add(neighbor);
+    public void addNeighbor(Stop neighbor, boolean isWalkingEdge) {
+        neighbors.put(neighbor, isWalkingEdge);
     }
     
     public void removeNeighbor(Stop neighbor) {
         neighbors.remove(neighbor);
+    }
+    
+    public void removeWalkingEdges() {
+        neighbors.entrySet().removeIf(entry -> entry.getValue() == true);
     }
     
     public void clearNeighbors() {
