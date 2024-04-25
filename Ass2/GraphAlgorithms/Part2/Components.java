@@ -27,7 +27,7 @@ public class Components{
         graph.resetSubGraphIds();
 
         
-        int componentNum = 0;
+        int componentNum = 0; //number of components in graph
 
         List<Stop> nodeList = new ArrayList<>(); // order stops visited 
         Set<Stop> visited = new HashSet<>(); // stops visited
@@ -39,7 +39,7 @@ public class Components{
             }
         }
     
-        //for (Stop stop : nodeList) {
+    
         for(int i = nodeList.size() -1; i >= 0; i--){ // search from each stop in reverse
             Stop stop = nodeList.get(i);
             

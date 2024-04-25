@@ -672,6 +672,7 @@ public class NetworkViewer {
      */
     public void reportPath(){
         double totalDistance = 0;
+        double totalTime = 0;
         StringBuilder pathText = new StringBuilder();
         if (startLocation!=null && goalLocation!=null){
             pathText.append("START: ").append(startLocation.getName()).append("\n");
@@ -689,11 +690,13 @@ public class NetworkViewer {
                 pathText.append("PATH:\n");
                 for (Edge edge : pathEdges){
                     totalDistance += edge.distance();
+                    totalTime += edge.time();
                     pathText.append("  ").append(edge.toString()).append("\n");
                 }
                 pathText.append("  ENDING AT ").append(goalLocation.getName()).append("\n");
-                pathText.append(String.format("Total path distance = %.3fkm",
+                pathText.append(String.format("Total path distance = %.3fkm\n",
                                               totalDistance/1000));
+                pathText.append(String.format("Total path time = %.1f minutes", totalTime/60));
             }
         }
         displayText.setText(pathText.toString());

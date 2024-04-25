@@ -20,7 +20,7 @@ import java.util.PriorityQueue;
 
 
 public class AStar {
-   
+    private static final double WAITING_TIME = 600; // 600 seconds = 10 minutes
     /**
      * Finds the shortest path between two stops
      *"distance"
@@ -70,6 +70,10 @@ public class AStar {
                     if (!visited.contains(neighbor)) {
                         double lengthToNeighbor = lengthToNode + edgeCost(neighEdge);
                         double estimateTotalPath = lengthToNeighbor + heuristic(neighbor, goal);
+                        if (!neighEdge.transpType().equals(Transport.WALKING)) {
+                            // Add waiting time only for non-walking transportation types
+                            estimateTotalPath += WAITING_TIME; // Assuming WAITING_TIME is a constant representing the fixed waiting time
+                        }
                         fringe.add(new PathItem(neighbor, neighEdge, lengthToNeighbor, estimateTotalPath));
                     }
                 }

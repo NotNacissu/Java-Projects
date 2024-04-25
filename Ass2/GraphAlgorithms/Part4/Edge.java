@@ -33,7 +33,7 @@ public class Edge {
             fromStop.getName() + "(" + fromStop.getId()+")  TO "+
             toStop.getName() + "(" + toStop.getId()+")  BY "+transpType+
             ((line!=null)?("(" + line.getId()+")"):"")+
-            "  " + ((int)distance)+"m";
+            "  " +((int)time)+"s" + "  " + ((int)distance)+"m";
     }
 
     // todo add getters and setters

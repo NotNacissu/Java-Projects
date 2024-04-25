@@ -143,15 +143,16 @@ public class Graph {
     public void recomputeWalkingEdges(double walkingDistance) {
         int count = 0;
         
+        
         // Recreate walking edges based on walking distance
         for (Stop fromS : stops) {
             for (Stop toS : stops) {
                 if (fromS != toS && fromS.distanceTo(toS) <= walkingDistance) {
                     Edge edge = new Edge(fromS, toS, Transport.WALKING, null, fromS.distanceTo(toS));
                     // Add neighbors bidirectionally between 'fromS' and 'toS'
+                    edges.add(edge);
                     fromS.addNeighbor(toS);
                     toS.addNeighbor(fromS);
-                    edges.add(edge);
                     count++; // Increment the count of edges added
                 }
             }
@@ -174,6 +175,8 @@ public class Graph {
     public void removeWalkingEdges()  {  
         // Remove walking edges from the edges collection
         edges.removeIf(edge -> edge.transpType().equals(Transport.WALKING));
+
+
     }
 
 

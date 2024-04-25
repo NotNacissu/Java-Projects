@@ -24,7 +24,6 @@ import java.util.HashSet;
  *  network that are closer than walkingDistance.
  */
 public class Graph {
-
     private Collection<Stop> stops;
     private Collection<Line> lines;
     private Collection<Edge> edges = new HashSet<Edge>();      // edges between Stops
@@ -72,20 +71,25 @@ public class Graph {
      */
     private void createAndConnectEdges() {
         for (Line line : lines) {
-            List<Stop> stops = line.getStops();    
+            List<Stop> stops = line.getStops();
             List<Integer> times = line.getTimes();
-            // step through the adjacent pairs of stops in the line
-            String transpType =  line.getType();
-            for (int i = 0; i < line.getStops().size() - 1; i++) {
-                Stop from = line.getStops().get(i);
-                Stop to   = line.getStops().get(i+1);
-                int time = -1; //time each stop
-                if (i < stops.size()-1) { // create toStop - +time until last index
-                    to = stops.get(i+1);
-                    time = times.get(i+1) - times.get(i);
-                }
+            String transpType = line.getType();
+            
+            for (int i = 0; i < stops.size() - 1; i++) {
+                Stop from = stops.get(i);
+                Stop to = stops.get(i + 1);
+                
+                int startTime = times.get(i); // Time at the starting stop
+                int endTime = times.get(i + 1); // Time at the ending stop
+                // Calculate the time between stops
+                int time = endTime - startTime;
+                // Calculate the distance between stops
                 double distance = from.distanceTo(to);
-                Edge edge = new Edge(from, to, transpType, line, distance,time);
+                
+                // Create the edge with the calculated time and distance
+                Edge edge = new Edge(from, to, transpType, line, distance, time);
+                
+                // Add the edge to the 'from' stop and to the list of edges
                 from.addEdge(edge);
                 edges.add(edge);
             }
@@ -110,7 +114,7 @@ public class Graph {
             for (Stop toS : stops) {
                 if (fromS.distanceTo(toS) <= walkingDistance && fromS != toS) {
                     // walking edge between two stops
-                    Edge edge = new Edge( fromS, toS, Transport.WALKING, null, fromS.distanceTo(toS),fromS.distanceTo(toS)/Transport.WALKING_SPEED_MPS);
+                    Edge edge = new Edge( fromS, toS, Transport.WALKING, null, fromS.distanceTo(toS),fromS.distanceTo(toS) * Transport.WALKING_SPEED_MPS);
                     
                     edges.add(edge); //add to set forward and backward
                     fromS.addEdge(edge);
