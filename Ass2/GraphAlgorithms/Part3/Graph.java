@@ -73,34 +73,34 @@ public class Graph {
      * - Construct the forward neighbour edges of each Stop.
      */
     private void createAndConnectEdges() {
-    // Iterate over each line
-    for (Line line : lines) {
-        // Retrieve the type of transportation for the line
-        String transpType = line.getType();
-        
-        // Retrieve the list of stops on the line
-        List<Stop> stops = line.getStops();
-        
-        // Iterate over adjacent pairs of stops in the line
-        for (int i = 0; i < stops.size() - 1; i++) {
-            Stop from = stops.get(i);
-            Stop to = stops.get(i + 1);
+        // Iterate over each line
+        for (Line line : lines) {
+            // Retrieve the type of transportation for the line
+            String transpType = line.getType();
             
-            // Calculate the distance between the stops
-            double distance = from.distanceTo(to);
+            // Retrieve the list of stops on the line
+            List<Stop> stops = line.getStops();
             
-            // Construct an edge between the adjacent stops
-            Edge edge = new Edge(from, to, transpType, line, distance);
-            
-            // Add the edge to the graph
-            edges.add(edge);
-            
-            // Construct forward neighbor edges of each stop
-            from.addNeighbor(to);
-            to.addNeighbor(from);
+            // Iterate over adjacent pairs of stops in the line
+            for (int i = 0; i < stops.size() - 1; i++) {
+                Stop from = stops.get(i);
+                Stop to = stops.get(i + 1);
+                
+                // Calculate the distance between the stops
+                double distance = from.distanceTo(to);
+                
+                // Construct an edge between the adjacent stops
+                Edge edge = new Edge(from, to, transpType, line, distance);
+                
+                // Add the edge to the graph
+                edges.add(edge);
+                
+                // Construct forward neighbor edges of each stop
+                from.addNeighbor(to);
+                to.addNeighbor(from);
+            }
         }
     }
-}
 
 
     
@@ -172,24 +172,9 @@ public class Graph {
     * - from the forward neighbours of each Stop.
     */
     public void removeWalkingEdges()  {  
-    // Remove walking edges from the edges collection
-    edges.removeIf(edge -> edge.transpType().equals(Transport.WALKING));
-    
-    // Remove walking edges from the forward neighbors of each Stop
-    for (Stop stop : stops) {
-        List<Stop> neighborsToRemove = new ArrayList<>();
-        for (Stop neighbor : stop.getNeighbors()) {
-            for (Edge edge : edges) {
-                if ((edge.fromStop().equals(stop) && edge.toStop().equals(neighbor)) ||
-                    (edge.fromStop().equals(neighbor) && edge.toStop().equals(stop))) {
-                    neighborsToRemove.add(neighbor);
-                    break;
-                }
-            }
-        }
-        stop.getNeighbors().removeAll(neighborsToRemove);
+        // Remove walking edges from the edges collection
+        edges.removeIf(edge -> edge.transpType().equals(Transport.WALKING));
     }
-}
 
 
     //=============================================================================

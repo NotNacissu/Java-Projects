@@ -15,55 +15,63 @@ import java.util.HashMap;
 //   connected graph. For a not fully connected graph, an articulation point is one
 //   that would break a currently connected component into two or more components
 //============================================================================
-
 public class ArticulationPoints {
-    private static int time = 0;
-    private static Stop start;
-
     public static Set<Stop> findArticulationPoints(Graph graph) {
         Set<Stop> articulationPoints = new HashSet<>();
-        Map<Stop, Integer> discovery = new HashMap<>();
-        Map<Stop, Integer> low = new HashMap<>();
-        Set<Stop> visited = new HashSet<>();
 
         for (Stop node : graph.getStops()) {
-            if (!visited.contains(node)) {
-                start = node;
-                findArticulationPointsHelper(node, null, discovery, low, visited, articulationPoints);
-            }
+            node.setDepth(-1);
         }
 
+        for (Stop node : graph.getStops()) {
+            if (node.getDepth() == -1) {
+                Set<Stop> aPoints = new HashSet<>();
+                int numSubtrees = 0;
+                node.setDepth(0); // visit start
+                for (Stop neighbour : node.getNeighbors()) {
+                    if (neighbour.getDepth() == -1) {
+                        recArtPts(neighbour, 1, node, aPoints);
+                        numSubtrees++;
+                    }
+                }
+                if (numSubtrees > 1) {
+                    articulationPoints.add(node);
+                }
+                articulationPoints.addAll(aPoints);
+            }
+        }
         return articulationPoints;
     }
 
-    private static void findArticulationPointsHelper(Stop u, Stop parent, Map<Stop, Integer> discovery,
-                                                     Map<Stop, Integer> low, Set<Stop> visited,
-                                                     Set<Stop> articulationPoints) {
-        visited.add(u);
-        discovery.put(u, time);
-        low.put(u, time);
-        time++;
-        int children = 0;
-
-        for (Stop v : u.getNeighbors()) {
-            if (v.equals(parent)) {
-                continue; // Skip the parent in the DFS tree
-            }
-            if (!visited.contains(v)) {
-                children++;
-                findArticulationPointsHelper(v, u, discovery, low, visited, articulationPoints);
-                low.put(u, Math.min(low.get(u), low.get(v)));
-
-                // Check if u is an articulation point
-                if ((u.equals(start) && children > 1) || (!u.equals(start) && low.get(v) >= discovery.get(u))) {
-                    articulationPoints.add(u);
-                }
+    private static int recArtPts(Stop node, int depth, Stop fromNode, Set<Stop> articulationPoints) {
+        node.setDepth(depth); // Visit node
+        int reachBack = depth; // How far up this node can reach
+        
+        for (Stop neighbour : node.getNeighbors()) {
+            if (neighbour.equals(fromNode)) {
+                continue;
+            } else if (neighbour.getDepth() != -1) {
+                // Already visited
+                reachBack = Math.min(neighbour.getDepth(), reachBack);
             } else {
-                low.put(u, Math.min(low.get(u), discovery.get(v)));
+                int childReach = recArtPts(neighbour, depth + 1, node, articulationPoints);
+                if (childReach >= depth) {
+                    // Subtree doesn't reach past this node
+                    articulationPoints.add(node);
+                }
+                reachBack = Math.min(childReach, reachBack);
             }
         }
+        
+        return reachBack;
     }
+
 }
+
+    
+
+
+
 
 
 
