@@ -187,14 +187,13 @@ public class NetworkViewer {
         // Find articulation points in the graph
         articulationPoints = ArticulationPoints.findArticulationPoints(graph); 
         
-        // Output articulation points to the console
-        System.out.println("Articulation Points:");
+        // Output articulation points to the displayText object
+        displayText.setText("Articulation Points:\n");
         for (Stop articulationPoint : articulationPoints) {
-            System.out.println(articulationPoint.getId() + ": " + articulationPoint.getName() + " at " + articulationPoint.getPoint());
+            displayText.appendText(articulationPoint.getId() + ": " + articulationPoint.getName() + " at " + articulationPoint.getPoint() + "\n");
         }
         drawGraph(graph);
     }
-
 
 
 
