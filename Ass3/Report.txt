@@ -1,0 +1,2 @@
+For this assignment, I have completed parts 1-2 fully. The EdmondKarp file for  Part 1 should be the only file that has been edited for that part. 
+The PageRank file for part 2 should be the only file edited for that part.
