@@ -1,0 +1,7 @@
+#BlueJ class context
+comment0.target=BoyerMoore
+comment1.params=pattern\ text
+comment1.target=int\ search(java.lang.String,\ java.lang.String)
+comment2.params=str\ size\ badChar
+comment2.target=void\ badCharHeuristic(java.lang.String,\ int,\ int[])
+numComments=3
